@@ -1,4 +1,4 @@
-import { PlayCircleIcon } from 'lucide-react';
+import { PlayCircleIcon, StopCircleIcon } from 'lucide-react';
 import { Button } from '../Button';
 import { Cycles } from '../Cycles';
 import { DefaultInput } from '../DefaultInput';
@@ -53,6 +53,26 @@ export function MainForm() {
     });
   };
 
+  const handleInteruptTask = () => {
+    setState(prevState => {
+      return {
+        ...prevState,
+        activeTask: null,
+        secondsRemaining: 0,
+        formatedSecondsRemaining: '00:00',
+        tasks: prevState.tasks.map(task => {
+          if (task.id === prevState.activeTask?.id) {
+            return {
+              ...task,
+              interruptedDate: Date.now(),
+            };
+          }
+          return task;
+        }),
+      };
+    });
+  };
+
   return (
     <form onSubmit={handleCreateNewTask} className={styles.form}>
       <div className={styles.formRow}>
@@ -61,16 +81,37 @@ export function MainForm() {
           type='text'
           placeholder='Digite algo'
           ref={taskNameInput}
+          disabled={!!state.activeTask}
         />
       </div>
       <div className={styles.formRow}>
         <p>Lorem ipsum dolor sit amet.</p>
       </div>
+      {state.currentCycle > 0 && (
+        <div className={styles.formRow}>
+          <Cycles />
+        </div>
+      )}
       <div className={styles.formRow}>
-        <Cycles />
-      </div>
-      <div className={styles.formRow}>
-        <Button icon={<PlayCircleIcon />} />
+        {!state.activeTask ? (
+          <Button
+            type='submit'
+            aria-label='Iniciar nova tarefa'
+            title='Iniciar nova tarefa'
+            icon={<PlayCircleIcon />}
+            key='start-task-button'
+          />
+        ) : (
+          <Button
+            type='button'
+            aria-label='Interromper tarefa atual'
+            title='Interromper tarefa atual'
+            color='red'
+            icon={<StopCircleIcon />}
+            onClick={handleInteruptTask}
+            key='stop-task-button'
+          />
+        )}
       </div>
     </form>
   );
